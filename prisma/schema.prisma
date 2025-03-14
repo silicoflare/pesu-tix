@@ -1,0 +1,107 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String   @id @default(cuid())
+  role          UserRole
+  studentInfo   Student? @relation(name: "StudentToUser", fields: [studentPRN], references: [prn], onDelete: Cascade)
+  studentPRN    String?  @unique
+  adminInfo     Admin?   @relation(name: "AdminToUser", fields: [adminUsername], references: [username], onDelete: Cascade)
+  adminUsername String?  @unique
+  clubInfo      Club?    @relation(name: "ClubToUser", fields: [clubUsername], references: [username], onDelete: Cascade)
+  clubUsername  String?  @unique
+}
+
+model Student {
+  prn          String         @id
+  password     String
+  srn          String
+  name         String
+  phone        String?
+  email        String?
+  program      String
+  branch       String
+  semester     String
+  section      String
+  campus       String
+  cycle        String
+  user         User?          @relation(name: "StudentToUser")
+  Registration Registration[]
+}
+
+model Admin {
+  username String @id
+  password String
+  name     String
+  user     User?  @relation(name: "AdminToUser")
+}
+
+model Club {
+  username String  @id
+  password String
+  name     String
+  campus   Campus
+  avatar   String
+  events   Event[] @relation(name: "ClubToEvent")
+  links    Json?
+  user     User?   @relation(name: "ClubToUser")
+}
+
+model Event {
+  id             String         @id @default(cuid())
+  name           String
+  description    String
+  imageURL       String
+  type           String
+  date           String
+  participation  RegType
+  maxTeamMembers Int
+  password       String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  public         Boolean        @default(false)
+  extraQuestions Json?
+  registrations  Registration[] @relation("EventToReg")
+  createdBy      Club           @relation(name: "ClubToEvent", fields: [creatorID], references: [username], onDelete: Cascade)
+  creatorID      String
+}
+
+model Registration {
+  id             String    @id @default(cuid())
+  event          Event     @relation("EventToReg", fields: [eventID], references: [id], onDelete: Cascade)
+  eventID        String
+  regType        RegType
+  teamName       String?
+  maxTeamMembers Int
+  ownerID        String?
+  students       Student[]
+  status         Int
+}
+
+enum UserRole {
+  STUDENT
+  ADMIN
+  CLUB
+}
+
+enum RegType {
+  SOLO
+  TEAM
+}
+
+enum Campus {
+  RR
+  EC
+}

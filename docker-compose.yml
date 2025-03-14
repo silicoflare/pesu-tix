@@ -1,0 +1,54 @@
+version: "3.8"
+
+services:
+  storage:
+    image: quay.io/minio/minio:latest
+    container_name: tix_storage
+    restart: always
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: password
+    volumes:
+      - tix_store_vol:/data
+    networks:
+      - tix_network
+    command: server /data --console-address ":9001"
+
+  database:
+    image: postgres:latest
+    container_name: tix_db
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: pesu-tix
+    ports:
+      - "5432:5432"
+    volumes:
+      - tix_db_vol:/var/lib/postgresql/data
+    networks:
+      - tix_network
+
+  # app:
+  #   build: .
+  #   container_name: tix_app
+  #   restart: always
+  #   depends_on:
+  #     database:
+  #       condition: service_healthy
+  #     storage:
+  #       condition: service_started
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - tix_network
+
+volumes:
+  tix_store_vol:
+  tix_db_vol:
+
+networks:
+  tix_network:
