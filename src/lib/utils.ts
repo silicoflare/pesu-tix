@@ -30,11 +30,17 @@ export function getName(session: Session) {
   if (session.user.role === "STUDENT") {
     let name = "";
 
-    for (let x of session.user.studentInfo!.name) {
-      name += x[0].toUpperCase() + x.slice(1).toLowerCase();
+    for (let x of session.user.studentInfo!.name.split(" ")) {
+      name = [name, x[0].toUpperCase() + x.slice(1).toLowerCase()].join(" ");
     }
     return name;
   } else {
     return session.user.adminInfo?.name ?? session.user.clubInfo?.name;
   }
+}
+
+export function convertImage(uint8Array: Uint8Array): string {
+  let binary = "";
+  uint8Array.forEach((byte) => (binary += String.fromCharCode(byte)));
+  return `data:image/jpg;base64,${btoa(binary)}`;
 }

@@ -12,6 +12,8 @@ import env from "@/env";
 import db from "@/lib/db";
 import { compareSync } from "bcryptjs";
 import { Admin, Club, Student, UserRole } from "@prisma/client";
+import { convertImage } from "@/lib/utils";
+import { filestore } from "@/lib/storage";
 
 declare module "next-auth" {
   export interface Session extends DefaultSession {
@@ -22,7 +24,9 @@ declare module "next-auth" {
     id: string;
     role: UserRole;
     studentInfo?: Omit<Student, "password"> | undefined;
-    clubInfo?: Omit<Club, "password" | "links"> | undefined;
+    clubInfo?:
+      | (Omit<Club, "password" | "links"> & { avatar: string })
+      | undefined;
     adminInfo?: Omit<Admin, "password"> | undefined;
   }
 }
@@ -32,7 +36,9 @@ declare module "next-auth/jwt" {
     role: UserRole;
     id: string;
     studentInfo?: Omit<Student, "password"> | undefined;
-    clubInfo?: Omit<Club, "password" | "links"> | undefined;
+    clubInfo?:
+      | (Omit<Club, "password" | "links"> & { avatar: string })
+      | undefined;
     adminInfo?: Omit<Admin, "password"> | undefined;
   }
 }
@@ -152,7 +158,9 @@ export const authOptions: NextAuthOptions = {
               username: res.username,
               name: res.name,
               campus: res.campus as Club["campus"],
-              avatar: res.avatar,
+              avatar: convertImage(
+                await filestore.getFile("clubs", `${res.username}/profile.jpg`)
+              ),
             },
           };
         } else {

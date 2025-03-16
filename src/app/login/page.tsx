@@ -51,21 +51,46 @@ const SignInPage: FunctionComponent = () => {
   const handleSubmit = async (values: z.infer<typeof formSchema>) => {
     setLoading(true);
 
-    const res = await signIn("pesu-auth", {
-      username: values.username,
-      password: values.password,
-      redirect: false,
-    });
-    setLoading(false);
+    let res;
 
-    if (res !== null && res!.ok) {
-      router.push(
-        // (callbackUrl as string) ||
-        "/"
-      );
+    if (
+      values.username.match(
+        /(?:PES[12][UP]G\d{2}(?:AM|CS|EE|EC|ME|BT|CV)\d{3})|(?:PES[12]20\d{2}\d{5})/
+      )
+    ) {
+      res = await signIn("pesu-auth", {
+        username: values.username,
+        password: values.password,
+        redirect: false,
+      });
+      setLoading(false);
+
+      if (res !== null && res!.ok) {
+        router.push(
+          // (callbackUrl as string) ||
+          "/"
+        );
+      } else {
+        if (res?.status === 401) setError("Invalid username or password");
+        setError("An error occurred. Please try again.");
+      }
     } else {
-      if (res?.status === 401) setError("Invalid username or password");
-      setError("An error occurred. Please try again.");
+      res = await signIn("tix-auth", {
+        username: values.username,
+        password: values.password,
+        redirect: false,
+      });
+      setLoading(false);
+
+      if (res!.ok) {
+        router.push("/redirect");
+      } else {
+        if (res?.status === 401) {
+          setError("Invalid username or password");
+        } else {
+          setError("An error occurred. Please try again.");
+        }
+      }
     }
   };
 

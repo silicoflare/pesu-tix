@@ -6,6 +6,10 @@
   @apply flex flex-col w-screen h-screen justify-center items-center gap-3 bg-background text-foreground;
 }
 
+.random {
+  @apply flex flex-col w-screen h-screen items-center gap-3 bg-background text-foreground;
+}
+
 @layer base {
   :root {
     --background: 0 0% 100%;

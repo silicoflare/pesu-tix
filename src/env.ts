@@ -6,6 +6,7 @@ export interface ENVType {
   MINIO_URL: string;
   MINIO_ACCESS_ID: string;
   MINIO_ACCESS_KEY: string;
+  NEXT_PUBLIC_API_URL: string;
 }
 
 function getEnv(name: string): string {
@@ -23,6 +24,7 @@ const env = {
   MINIO_URL: getEnv("MINIO_URL"),
   MINIO_ACCESS_ID: getEnv("MINIO_ACCESS_ID"),
   MINIO_ACCESS_KEY: getEnv("MINIO_ACCESS_KEY"),
-}
+  NEXT_PUBLIC_API_URL: getEnv("NEXT_PUBLIC_API_URL"),
+};
 
 export default env;

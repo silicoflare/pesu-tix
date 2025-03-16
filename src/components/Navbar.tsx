@@ -1,7 +1,6 @@
 "use client";
 
 // import ThemeButton from "./ThemeButton";
-import { TicketIcon } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -17,6 +16,12 @@ import { useRouter } from "next/navigation";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { getName, navbarLinks } from "@/lib/utils";
+
+import dynamic from "next/dynamic";
+const TicketIcon = dynamic(
+  () => import("lucide-react").then((mod) => mod.TicketIcon),
+  { ssr: false }
+);
 
 export default function Navbar({ hidelogin = false }: { hidelogin?: boolean }) {
   const { data: session } = useSession();
@@ -42,7 +47,9 @@ export default function Navbar({ hidelogin = false }: { hidelogin?: boolean }) {
       className={`w-full flex flex-row items-center justify-between px-7 py-7 basic fixed top-0 left-0 bg-transparent z-10`}
     >
       <h1 className="font-semibold text-2xl cursor-pointer flex flex-row gap-x-3 items-center">
-        <Link href="/">{/* <TicketIcon className="-rotate-45" /> */}</Link>
+        <Link href="/">
+          <TicketIcon className="-rotate-45" suppressHydrationWarning />
+        </Link>
       </h1>
       <span className="flex flex-row items-center justify-end cursor-pointer gap-x-3">
         {!!session?.user ? (
@@ -63,7 +70,11 @@ export default function Navbar({ hidelogin = false }: { hidelogin?: boolean }) {
               <DropdownMenuTrigger className="outline-none">
                 <Avatar>
                   <AvatarImage
-                    src={`https://api.dicebear.com/8.x/adventurer-neutral/svg?seed=${session.user.id}`}
+                    src={
+                      session.user.role === "CLUB"
+                        ? session.user.clubInfo?.avatar
+                        : `https://api.dicebear.com/9.x/dylan/svg?seed=${session.user.id}&size=32`
+                    }
                   ></AvatarImage>
                 </Avatar>
               </DropdownMenuTrigger>

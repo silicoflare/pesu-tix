@@ -53,3 +53,5 @@ export class FileStorage {
     return buf;
   }
 }
+
+export const filestore = new FileStorage();
